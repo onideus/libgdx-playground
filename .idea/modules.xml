@@ -2,9 +2,13 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/desktop/desktop.iml" filepath="$PROJECT_DIR$/.idea/modules/desktop/desktop.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/libgdx-playground.iml" filepath="$PROJECT_DIR$/.idea/libgdx-playground.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/libgdx-playground.core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/libgdx-playground.core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/libgdx-playground.core.main.iml" filepath="$PROJECT_DIR$/.idea/modules/core/libgdx-playground.core.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/libgdx-playground.core.test.iml" filepath="$PROJECT_DIR$/.idea/modules/core/libgdx-playground.core.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/desktop/libgdx-playground.desktop.iml" filepath="$PROJECT_DIR$/.idea/modules/desktop/libgdx-playground.desktop.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/desktop/libgdx-playground.desktop.main.iml" filepath="$PROJECT_DIR$/.idea/modules/desktop/libgdx-playground.desktop.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/desktop/libgdx-playground.desktop.test.iml" filepath="$PROJECT_DIR$/.idea/modules/desktop/libgdx-playground.desktop.test.iml" />
     </modules>
   </component>
 </project>
