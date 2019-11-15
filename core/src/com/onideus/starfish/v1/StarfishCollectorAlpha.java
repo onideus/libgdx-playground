@@ -1,4 +1,4 @@
-package com.onideus.starfish;
+package com.onideus.starfish.v1;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;

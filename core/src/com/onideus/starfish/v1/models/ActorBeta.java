@@ -1,4 +1,4 @@
-package com.onideus.starfish.models;
+package com.onideus.starfish.v1.models;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;

@@ -1,9 +1,9 @@
-package com.onideus.starfish.actors;
+package com.onideus.starfish.v1.actors;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
-import com.onideus.starfish.models.ActorBeta;
+import com.onideus.starfish.v1.models.ActorBeta;
 
 public class Turtle extends ActorBeta {
     public Turtle() {
