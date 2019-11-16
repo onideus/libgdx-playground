@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
@@ -18,6 +20,11 @@ public class BaseActor extends Actor {
     private Animation<TextureRegion> animation;
     private float elapsedTime;
     private boolean animationPaused;
+    private Vector2 velocityVec;
+    private Vector2 accelerationVec;
+    private float acceleration;
+    private float maxSpeed;
+    private float deceleration;
 
     public BaseActor(float x, float y, Stage stage) {
         super();
@@ -26,6 +33,11 @@ public class BaseActor extends Actor {
         animation = null;
         elapsedTime = 0;
         animationPaused = false;
+        velocityVec = new Vector2(0, 0);
+        accelerationVec = new Vector2(0, 0);
+        acceleration = 0;
+        maxSpeed = 1000;
+        deceleration = 0;
     }
 
     public void setAnimation(Animation<TextureRegion> textureRegionAnimation) {
@@ -45,7 +57,7 @@ public class BaseActor extends Actor {
     public void act(float dt) {
         super.act(dt);
 
-        if(!animationPaused) {
+        if (!animationPaused) {
             elapsedTime += dt;
         }
     }
@@ -56,7 +68,7 @@ public class BaseActor extends Actor {
 
         batch.setColor(getColor());
 
-        if(animation != null && isVisible()) {
+        if (animation != null && isVisible()) {
             batch.draw(animation.getKeyFrame(elapsedTime),
                     getX(),
                     getY(),
@@ -83,7 +95,7 @@ public class BaseActor extends Actor {
                         }).toArray(TextureRegion[]::new)
         );
 
-       setAnimationAndPlayMode(textureRegionAnimation, loop);
+        setAnimationAndPlayMode(textureRegionAnimation, loop);
 
         return textureRegionAnimation;
     }
@@ -99,7 +111,7 @@ public class BaseActor extends Actor {
 
         List<TextureRegion> textureRegions = new ArrayList<>();
 
-        for(int r = 0; r < rows; r++){
+        for (int r = 0; r < rows; r++) {
             textureRegions.addAll(Arrays.asList(splitRegion[r]).subList(0, columns));
         }
 
@@ -115,18 +127,80 @@ public class BaseActor extends Actor {
         return loadAnimationFromFiles(List.of(fileName), 1, true);
     }
 
+    public void applyPhysics(float dt) {
+        velocityVec.add(accelerationVec.x * dt, accelerationVec.y * dt);
+
+        float speed = getSpeed();
+
+        if (accelerationVec.len() == 0) {
+            speed -= deceleration * dt;
+        }
+
+        speed = MathUtils.clamp(speed, 0, maxSpeed);
+
+        setSpeed(speed);
+
+        moveBy(velocityVec.x * dt, velocityVec.y * dt);
+
+        accelerationVec.set(0, 0);
+    }
+
     public boolean isAnimationFinished() {
         return animation.isAnimationFinished(elapsedTime);
     }
 
+    public void setSpeed(float speed) {
+        if (velocityVec.len() == 0) {
+            velocityVec.set(speed, 0);
+        } else {
+            velocityVec.setLength(speed);
+        }
+    }
+
+    public float getSpeed() {
+        return velocityVec.len();
+    }
+
+    public void setMotionAngle(float angle) {
+        velocityVec.setAngle(angle);
+    }
+
+    public float getMotionAngle() {
+        return velocityVec.angle();
+    }
+
+    public boolean isMoving() {
+        return getSpeed() > 0;
+    }
+
+    public void setAcceleration(float acceleration) {
+        this.acceleration = acceleration;
+    }
+
+    public void accelerateAtAngle(float angle) {
+        accelerationVec.add(new Vector2(acceleration, 0).setAngle(angle));
+    }
+
+    public void accelerateForward() {
+        accelerateAtAngle(getRotation());
+    }
+
+    public void setMaxSpeed(float maxSpeed) {
+        this.maxSpeed = maxSpeed;
+    }
+
+    public void setDeceleration(float deceleration) {
+        this.deceleration = deceleration;
+    }
+
     private void setAnimationAndPlayMode(Animation<TextureRegion> textureRegionAnimation, boolean loop) {
-        if(loop) {
+        if (loop) {
             textureRegionAnimation.setPlayMode(Animation.PlayMode.LOOP);
         } else {
             textureRegionAnimation.setPlayMode(Animation.PlayMode.NORMAL);
         }
 
-        if(animation == null) {
+        if (animation == null) {
             setAnimation(textureRegionAnimation);
         }
     }
