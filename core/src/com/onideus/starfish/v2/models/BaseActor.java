@@ -1,4 +1,4 @@
-package com.onideus.starfish.v2.actors;
+package com.onideus.starfish.v2.models;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -9,10 +9,10 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class BaseActor extends Actor {
     private Animation<TextureRegion> animation;
@@ -71,11 +71,12 @@ public class BaseActor extends Actor {
         }
     }
 
-    public Animation<TextureRegion> loadAnimationFromFiles(String[] fileNames, float frameDuration, boolean loop) {
+    public Animation<TextureRegion> loadAnimationFromFiles(List<String> fileNames, float frameDuration, boolean loop) {
         Animation<TextureRegion> textureRegionAnimation = new Animation<>(
                 frameDuration,
-                Stream.of(fileNames)
-                        .map(fileName -> new Texture(Gdx.files.internal(String.format("starfish-game/v2/%s", fileName))))
+                fileNames.stream()
+                        .map(fileName -> new Texture(Gdx.files.internal(
+                                MessageFormat.format("starfish-game/v2/{0}", fileName))))
                         .map(texture -> {
                             texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
                             return new TextureRegion(texture);
@@ -108,6 +109,14 @@ public class BaseActor extends Actor {
         setAnimationAndPlayMode(textureRegionAnimation, loop);
 
         return textureRegionAnimation;
+    }
+
+    public Animation<TextureRegion> loadTexture(String fileName) {
+        return loadAnimationFromFiles(List.of(fileName), 1, true);
+    }
+
+    public boolean isAnimationFinished() {
+        return animation.isAnimationFinished(elapsedTime);
     }
 
     private void setAnimationAndPlayMode(Animation<TextureRegion> textureRegionAnimation, boolean loop) {
