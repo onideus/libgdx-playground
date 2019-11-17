@@ -285,4 +285,20 @@ public class BaseActor extends Actor {
     public void setOpacity(float opacity) {
         this.getColor().a = opacity;
     }
+
+    public static ArrayList<BaseActor> getList(Stage stage, Class actorClass) {
+        ArrayList<BaseActor> baseActors = new ArrayList<>();
+
+        for(Actor actor : stage.getActors()) {
+            if(actorClass.isInstance(actor)) {
+                baseActors.add((BaseActor) actor);
+            }
+        }
+
+        return baseActors;
+    }
+
+    public static int actorCount(Stage stage, Class actorClass) {
+        return getList(stage, actorClass).size();
+    }
 }
