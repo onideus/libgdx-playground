@@ -26,6 +26,8 @@ public class Turtle extends BaseActor {
         setAcceleration(400);
         setMaxSpeed(100);
         setDeceleration(400);
+
+        setBoundaryPolygon(8);
     }
 
     public void act(float dt) {

@@ -6,7 +6,10 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Intersector.MinimumTranslationVector;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -25,6 +28,7 @@ public class BaseActor extends Actor {
     private float acceleration;
     private float maxSpeed;
     private float deceleration;
+    private Polygon boundaryPolygon;
 
     public BaseActor(float x, float y, Stage stage) {
         super();
@@ -47,6 +51,9 @@ public class BaseActor extends Actor {
         float height = textureRegion.getRegionHeight();
         setSize(width, height);
         setOrigin(width / 2, height / 2);
+        if (boundaryPolygon == null) {
+            setBoundaryRectangle();
+        }
     }
 
     public void setAnimationPaused(boolean paused) {
@@ -102,7 +109,8 @@ public class BaseActor extends Actor {
 
     public Animation<TextureRegion> loadAnimationFromSheet(String fileName, int rows, int columns,
                                                            float frameDuration, boolean loop) {
-        Texture texture = new Texture(Gdx.files.internal(fileName), true);
+        Texture texture = new Texture(Gdx.files.internal(MessageFormat.format("starfish-game/v2/{0}", fileName)),
+                true);
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
         int frameWidth = texture.getWidth() / columns;
         int frameHeight = texture.getHeight() / rows;
@@ -143,6 +151,67 @@ public class BaseActor extends Actor {
         moveBy(velocityVec.x * dt, velocityVec.y * dt);
 
         accelerationVec.set(0, 0);
+    }
+
+    public void setBoundaryRectangle() {
+        float width = getWidth();
+        float height = getHeight();
+        float[] vertices = {0, 0, width, 0, width, height, 0, height};
+        boundaryPolygon = new Polygon(vertices);
+    }
+
+    public void setBoundaryPolygon(int numSides) {
+        float width = getWidth();
+        float height = getHeight();
+
+        float[] vertices = new float[2 * numSides];
+        for (int i = 0; i < numSides; i++) {
+            float angle = i * 6.28f / numSides;
+            vertices[2 * i] = width / 2 * MathUtils.cos(angle) + width / 2;
+            vertices[2 * i + 1] = height / 2 * MathUtils.sin(angle) + height / 2;
+        }
+
+        boundaryPolygon = new Polygon(vertices);
+    }
+
+    public Polygon getBoundaryPolygon() {
+        boundaryPolygon.setPosition(getX(), getY());
+        boundaryPolygon.setOrigin(getOriginX(), getOriginY());
+        boundaryPolygon.setRotation(getRotation());
+        boundaryPolygon.setScale(getScaleX(), getScaleY());
+        return boundaryPolygon;
+    }
+
+    public boolean overlaps(BaseActor other) {
+        Polygon ourPolygon = this.getBoundaryPolygon();
+        Polygon theirPolygon = other.getBoundaryPolygon();
+
+        if (!ourPolygon.getBoundingRectangle().overlaps(theirPolygon.getBoundingRectangle())) {
+            return false;
+        }
+
+        return Intersector.overlapConvexPolygons(ourPolygon, theirPolygon);
+    }
+
+    public Vector2 preventOverlap(BaseActor other) {
+        Polygon ourPolygon = this.getBoundaryPolygon();
+        Polygon theirPolygon = other.getBoundaryPolygon();
+
+        if (!ourPolygon.getBoundingRectangle().overlaps(theirPolygon.getBoundingRectangle())) {
+            return null;
+        }
+
+        MinimumTranslationVector minimumTranslationVector = new MinimumTranslationVector();
+        boolean polygonOverlap = Intersector.overlapConvexPolygons(ourPolygon, theirPolygon, minimumTranslationVector);
+
+        if (!polygonOverlap) {
+            return null;
+        }
+
+        this.moveBy(minimumTranslationVector.normal.x * minimumTranslationVector.depth,
+                minimumTranslationVector.normal.y * minimumTranslationVector.depth);
+
+        return minimumTranslationVector.normal;
     }
 
     public boolean isAnimationFinished() {
@@ -203,5 +272,17 @@ public class BaseActor extends Actor {
         if (animation == null) {
             setAnimation(textureRegionAnimation);
         }
+    }
+
+    public void centerAtPosition(float x, float y) {
+        setPosition(x - getWidth() / 2, y - getHeight() / 2);
+    }
+
+    public void centerAtActor(BaseActor baseActor) {
+        centerAtPosition(baseActor.getX() + baseActor.getWidth() / 2, baseActor.getY() + baseActor.getHeight() / 2);
+    }
+
+    public void setOpacity(float opacity) {
+        this.getColor().a = opacity;
     }
 }
