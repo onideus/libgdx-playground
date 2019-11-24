@@ -7,10 +7,12 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 
 public abstract class GameBeta extends Game {
     protected Stage mainStage;
+    protected Stage uiStage;
 
     @Override
     public void create() {
         mainStage = new Stage();
+        uiStage = new Stage();
         initialize();
     }
 
@@ -27,6 +29,8 @@ public abstract class GameBeta extends Game {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         mainStage.draw();
+        uiStage.act(dt);
+        uiStage.draw();
     }
 
     public abstract void update(float dt);

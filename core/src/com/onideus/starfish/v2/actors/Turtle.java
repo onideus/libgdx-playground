@@ -48,5 +48,8 @@ public class Turtle extends BaseActor {
         setAnimationPaused(!isMoving());
 
         setRotation(getMotionAngle() == 0 ? getRotation() : getMotionAngle());
+
+        boundToWorld();
+        alignCamera();
     }
 }

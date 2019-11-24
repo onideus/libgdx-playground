@@ -1,18 +1,17 @@
 package com.onideus.starfish.v2.models;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.math.Intersector.MinimumTranslationVector;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -29,6 +28,7 @@ public class BaseActor extends Actor {
     private float maxSpeed;
     private float deceleration;
     private Polygon boundaryPolygon;
+    private static Rectangle worldBounds;
 
     public BaseActor(float x, float y, Stage stage) {
         super();
@@ -300,5 +300,42 @@ public class BaseActor extends Actor {
 
     public static int actorCount(Stage stage, Class actorClass) {
         return getList(stage, actorClass).size();
+    }
+
+    public static void setWorldBounds(float width, float height) {
+        worldBounds = new Rectangle(0, 0, width, height);
+    }
+
+    public static void setWorldBounds(BaseActor baseActor) {
+        setWorldBounds(baseActor.getWidth(), baseActor.getHeight());
+    }
+
+    public void boundToWorld() {
+        if(getX() < 0) {
+            setX(0);
+        }
+
+        if(getX() + getWidth() > worldBounds.width) {
+            setX(worldBounds.width - getWidth());
+        }
+
+        if(getY() < 0) {
+            setY(0);
+        }
+
+        if(getY() + getHeight() > worldBounds.height) {
+            setY(worldBounds.height - getHeight());
+        }
+    }
+
+    public void alignCamera() {
+        Camera camera = this.getStage().getCamera();
+        Viewport viewport = this.getStage().getViewport();
+
+        camera.position.set(this.getX() + this.getOriginX(), this.getY() + this.getOriginY(), 0);
+
+        camera.position.x = MathUtils.clamp(camera.position.x, camera.viewportWidth / 2, worldBounds.width - camera.viewportWidth / 2);
+        camera.position.y = MathUtils.clamp(camera.position.y, camera.viewportHeight / 2, worldBounds.height - camera.viewportHeight / 2);
+        camera.update();
     }
 }
